@@ -1,0 +1,14 @@
+package com.storefront.order.config;
+
+public enum OrderSagaStatus {
+	
+	STARTED,
+    INVENTORY_RESERVED,
+    PAYMENT_COMPLETED,
+    WAITING_INVENTORY_CONFIRM,
+    WAITING_INVENTORY_RELEASE,
+    MANUAL_INTERVENTION_REQUIRED,
+    COMPLETED,
+    FAILED
+
+}

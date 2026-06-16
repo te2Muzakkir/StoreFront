@@ -1,0 +1,145 @@
+spring:
+  application:
+    name: gatewayserver
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lowerCaseServiceId: true
+      httpclient:
+        connect-timeout: 5000
+        response-time: 30s
+      metrics:
+        enabled: true
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/storefront/**]':
+            allowedOrigins:
+              - http://localhost:4200
+              - https://storefront.com
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders:
+              - Authorization
+              - Content-Type
+              - X-Correlation-ID
+              - Accept
+              - Origin
+              - Cache-Control
+              - X-Requested-With
+            exposedHeaders:
+              - X-Correlation-ID
+            allowCredentials: true
+            maxAge: 3600
+  codec:
+    max-in-memory-size: 10MB
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+       
+server:
+  port: 9040
+  shutdown: graceful
+  
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:9035/eureka/
+  instance:
+    preferIpAddresss: true
+    hostname: localhost
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+  
+info:
+  app:
+    name: GatewayServer
+    description: "Single vendor ecommerce app GatewayServer Application"
+    version: "1.0.0"
+  
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+    circuitbreakers:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+    gateway:
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+      
+logging:
+  level:
+    root: INFO
+    com.storefront.gatewayserver: INFO
+    org.springframework.boot.autoconfigure: DEBUG
+  pattern:
+    console: >
+      %d{yyyy-MM-dd HH:mm:ss.SSS}
+      [%thread]
+      %-5level
+      %logger{36}
+      - %msg%n
+      
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 30s
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      userCircuitBreaker:
+        baseConfig: default
+      productCircuitBreaker:
+        baseConfig: default
+      inventoryCircuitBreaker:
+        baseConfig: default
+      paymentCircuitBreaker:
+        baseConfig: default
+      orderCircuitBreaker:
+        baseConfig: default

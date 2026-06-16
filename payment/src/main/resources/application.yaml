@@ -1,0 +1,95 @@
+spring:
+  application:
+    name: payment
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+      show-sql: false
+  #profiles:
+    #active: default
+  config:
+    import: 'configserver:http://localhost:9030/'
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  cloud:
+    function:
+      definition: paymentCommand;paymentCommandDlq
+    stream:
+      bindings:
+        paymentCommand-in-0:
+          destination: payment.command
+          group: payment
+          consumer:
+            max-attempts: 3
+            back-off-initial-interval: 1000
+            back-off-multiplier: 2
+            back-off-max-interval: 10000
+        paymentResult-out-0:
+          destination: payment.result
+        paymentCommandDlq-in-0:
+          destination: payment.command.payment.dlq
+          group: payment-dlq
+      rabbit:
+        bindings:
+          paymentCommand-in-0:
+            consumer:
+              autoBindDlq: true
+              republishToDlq: true
+              dlqTtl: 604800000
+  lifecycle:
+    timeout-per-shutdown-phase: 60s
+
+    
+server:
+  port: 9020
+  shutdown: graceful
+  
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:9035/eureka/
+  instance:
+    preferIpAddresss: true
+    hostname: localhost
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+  
+info:
+  app:
+    name: Payment
+    description: "Single vendor ecommerce app Payment application"
+    version: "1.0.0"
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+      
+logging:
+  level:
+    com:
+      storefront:
+        payment: DEBUG

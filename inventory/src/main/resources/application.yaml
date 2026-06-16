@@ -1,0 +1,99 @@
+spring:
+  application:
+    name: inventory
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+      show-sql: false
+      
+  #profiles:
+    #active: default
+    
+  config:
+    import: 'configserver:http://localhost:9030/'
+    
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    
+  cloud:
+    function:
+      definition: inventoryCommand;inventoryCommandDlq
+    stream:
+      bindings:
+        inventoryCommand-in-0:
+          destination: inventory.command
+          group: inventory
+          consumer:
+            max-attempts: 3
+            back-off-initial-interval: 1000
+            back-off-multiplier: 2
+            back-off-max-interval: 10000
+        inventoryResult-out-0:
+          destination: inventory.result
+        inventoryCommandDlq-in-0:
+          destination: inventory.command.inventory.dlq
+          group: inventory-dlq
+      rabbit:
+        bindings:
+          inventoryCommand-in-0:
+            consumer:
+              auto-bind-dlq: true
+              republish-to-dlq: true
+              dlqTtl: 604800000
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+    
+server:
+  port: 9010
+  shutdown: graceful
+  
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:9035/eureka/
+  instance:
+    preferIpAddresss: true
+    hostname: localhost
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+  
+info:
+  app:
+    name: Inventory
+    description: "Single vendor ecommerce app Inventory Application"
+    version: "1.0.0"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+      
+logging:
+  level:
+    com:
+      storefront:
+        inventory: DEBUG
