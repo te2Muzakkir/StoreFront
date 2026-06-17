@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.storefront.product.config.ProductConstants;
 import com.storefront.product.dto.ProductDto;
 import com.storefront.product.dto.ResponseDto;
-import com.storefront.product.entity.Product;
 import com.storefront.product.service.ProductService;
 
 import jakarta.validation.Valid;
@@ -39,14 +38,14 @@ public class ProductController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<Product>> getProducts() {
+	public ResponseEntity<List<ProductDto>> getProducts() {
 		return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(productService.getProducts());
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Product> getProduct(@PathVariable String id) {
+	public ResponseEntity<ProductDto> getProduct(@PathVariable String id) {
 		return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(productService.getProduct(id));

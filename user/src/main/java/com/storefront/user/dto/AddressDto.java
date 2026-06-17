@@ -5,9 +5,15 @@ import lombok.Data;
 @Data
 public class AddressDto {
 	
-	private String street;
+	private String address;
+	private String landmark;
 	private String city;
+	private String state;
 	private String country;
-	//TODO: default, phone number, receiver name, area, landmark, pincode, state, house number/ single full address field as per Amazon 
+	private String pincode;
+	private String phoneNumber;
+	private String receiverName;
+	private boolean isDefault;
+	private Long addressId;
 
 }

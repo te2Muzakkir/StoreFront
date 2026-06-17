@@ -7,7 +7,7 @@ spring:
     config:
       server:
         git:
-          uri: 
+          uri: "https://github.com/te2Muzakkir/storefront-config.git"
           username: te2Muzakkir
           password: 
           default-label: main

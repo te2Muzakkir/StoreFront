@@ -39,7 +39,7 @@ public class DlqOpsServiceImpl implements DlqOpsService {
 
 	@Override
 	public List<OrderSagaDlq> pendingInDlq() {
-		return orderSagaDlqRepository.findByProcessedFalse();
+		return orderSagaDlqRepository.findAll();
 	}
 
 	@Override

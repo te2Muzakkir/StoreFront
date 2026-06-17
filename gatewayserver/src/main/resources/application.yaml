@@ -44,22 +44,12 @@ spring:
     max-in-memory-size: 10MB
   lifecycle:
     timeout-per-shutdown-phase: 30s
+  config:
+    import: 'configserver:http://localhost:9030/'
        
 server:
   port: 9040
   shutdown: graceful
-  
-eureka:
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:9035/eureka/
-  instance:
-    preferIpAddresss: true
-    hostname: localhost
-    lease-renewal-interval-in-seconds: 30
-    lease-expiration-duration-in-seconds: 90
   
 info:
   app:

@@ -8,33 +8,16 @@ spring:
     hibernate:
       ddl-auto: none
       show-sql: false
-  #profiles:
-    #active: default
+  profiles:
+    active: default
   config:
     import: 'configserver:http://localhost:9030/'
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
   lifecycle:
     timeout-per-shutdown-phase: 30s
     
 server:
   port: 8090
   shutdown: graceful
-  
-eureka:
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:9035/eureka/
-  instance:
-    preferIpAddresss: true
-    hostname: localhost
-    lease-renewal-interval-in-seconds: 30
-    lease-expiration-duration-in-seconds: 90
   
 info:
   app:

@@ -45,8 +45,8 @@ public class InventoryProcessor {
 		} catch (DataIntegrityViolationException e) {
 		    return;
 		}
-		if (!inventoryMovementRepository.findByReference(
-				InventoryConstants.INVENTORY_MOVEMENT_REFERENCE_PREFIX+command.orderId()).isEmpty()) 
+		if (!inventoryMovementRepository.findByReferenceAndMovementType(
+				InventoryConstants.INVENTORY_MOVEMENT_REFERENCE_PREFIX+command.orderId(), command.action().toString()).isEmpty()) 
 			return;
 		List<Inventory> inventoryList = new ArrayList<>();
 		List<InventoryMovement> inventoryMovementList = new ArrayList<>();

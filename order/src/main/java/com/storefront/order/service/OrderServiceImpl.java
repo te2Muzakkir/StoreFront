@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.storefront.order.config.InventoryAction;
 import com.storefront.order.config.OrderConstants;
@@ -48,9 +49,11 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
 	private OrderSagaItemRepository orderSagaItemRepository;
 	
+	@Autowired
 	private ProductFeignClient productFeignClient;
 
 	@Override
+	@Transactional
 	public String create(OrdersDto orderDto) {
 		Orders order = new Orders();
 		order.setCreatedAt(LocalDateTime.now());
@@ -59,7 +62,13 @@ public class OrderServiceImpl implements OrderService {
 		List<OrderItems> orderItemsList = new ArrayList<>();
 		List<OrderSagaItem> orderSagaItemList = new ArrayList<>();
 		List<InventoryItem> inventoryItemList = new ArrayList<>();
-		BigDecimal orderValue = BigDecimal.ZERO;
+		BigDecimal orderValue = orderDto.getOrderItemsDtoList().stream()
+		        .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+		        .reduce(BigDecimal.ZERO, BigDecimal::add);
+		if(!orderValue.equals(orderDto.getTotalAmount()))
+			return OrderConstants.ORDER_PRICE_UPDATED_ERR_MSG;
+		order.setTotalAmount(orderValue);
+		orderRepository.save(order);
 		for(OrderItemsDto orderItemsDto : orderDto.getOrderItemsDtoList()) {
 			OrderItems orderItems = new OrderItems();
 			orderItems.setOrderId(order.getId());
@@ -71,7 +80,6 @@ public class OrderServiceImpl implements OrderService {
 			if(!product.getPrice().equals(orderItemsDto.getPrice()))
 				return OrderConstants.ORDER_PRICE_UPDATED_ERR_MSG;
 			orderItems.setPrice(orderItemsDto.getPrice());
-			orderValue = orderValue.add(orderItemsDto.getPrice().multiply(BigDecimal.valueOf(orderItemsDto.getQuantity())));
 			orderItemsList.add(orderItems);
 
 			orderSagaItemList.add(new OrderSagaItem(order.getId(), 
@@ -80,10 +88,6 @@ public class OrderServiceImpl implements OrderService {
 					new InventoryItem(orderItemsDto.getProductId(), 
 							orderItemsDto.getSellerId(), orderItemsDto.getQuantity()));
 		}
-		if(!orderValue.equals(orderDto.getTotalAmount()))
-			return OrderConstants.ORDER_PRICE_UPDATED_ERR_MSG;
-		order.setTotalAmount(orderValue);
-		orderRepository.save(order);
 		orderItemsRepository.saveAll(orderItemsList);
 		orderSagaRepository.save(new OrderSaga(order.getId()));
 		orderSagaItemRepository.saveAll(orderSagaItemList);

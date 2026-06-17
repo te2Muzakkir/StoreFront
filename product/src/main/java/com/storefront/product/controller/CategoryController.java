@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.storefront.product.config.ProductConstants;
 import com.storefront.product.dto.CategoryDto;
 import com.storefront.product.dto.ResponseDto;
-import com.storefront.product.entity.Category;
 import com.storefront.product.service.CategoryService;
+
 import jakarta.validation.Valid;
 
 @RestController
@@ -40,14 +40,14 @@ public class CategoryController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<Category>> getCategories() {
+	public ResponseEntity<List<CategoryDto>> getCategories() {
 		return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(categoryService.getCategories());
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Category> getCategory(@PathVariable String id) {
+	public ResponseEntity<CategoryDto> getCategory(@PathVariable String id) {
 		return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(categoryService.getCategory(id));
@@ -67,9 +67,9 @@ public class CategoryController {
         }
 	}
 	
-	@DeleteMapping("/deactivate")
+	@PatchMapping("/deactivate")
 	public ResponseEntity<ResponseDto> deactivate(@RequestParam("id") String id) {
-		boolean isdeleted = categoryService.delete(id);
+		boolean isdeleted = categoryService.deactivate(id);
 		 if(isdeleted) {
 	            return ResponseEntity
 	                    .status(HttpStatus.OK)

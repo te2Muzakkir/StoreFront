@@ -18,8 +18,8 @@ import lombok.Setter;
 public class DlqAudit {
 
     @Id
-    @GeneratedValue(generator = "orders_seq")
-	@SequenceGenerator(name = "orders_seq", sequenceName = "orders_id_seq", allocationSize = 1)
+    @GeneratedValue(generator = "dlq_audit_seq")
+    @SequenceGenerator(name = "dlq_audit_seq", sequenceName = "dlq_audit_id_seq", allocationSize = 1)
     private Long id;
     private String eventId;
     private String orderId;

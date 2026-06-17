@@ -133,7 +133,7 @@ public class OrderSagaOrchestrator {
 		if (result.success()) {
 			orderSaga.waitingInventoryConfirm();
 			order.setStatus(OrderStatus.INVENTORY_CONFIRM_PENDING.getValue());
-		    if (orderSaga.canSendPaymentCommand()) {
+		    if (orderSaga.canSendInventoryConfirm()) {
 		    	orderSaga.setInventoryConfirmSent(true);
 		    	sendInventoryAction(orderSaga, InventoryAction.CONFIRM);
 		    }

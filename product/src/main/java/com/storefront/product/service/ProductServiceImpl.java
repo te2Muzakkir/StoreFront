@@ -33,7 +33,6 @@ public class ProductServiceImpl implements ProductService {
 		Product product = ProductMapper.mapToProduct(productDto, new Product());
 		product.setCreatedAt(LocalDateTime.now());
 		productRepository.save(product);
-		
 		InventoryMovementDto inventoryMovementDto = new InventoryMovementDto();
 		inventoryMovementDto.setCreatedAt(LocalDateTime.now());
 		inventoryMovementDto.setMovementType("IN");
@@ -45,22 +44,24 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<Product> getProducts() {
-		return productRepository.findByActiveTrue();
+	public List<ProductDto> getProducts() {
+		return productRepository.findByActiveTrue().stream()
+				.map(product -> ProductMapper.mapToProductDto(product, new ProductDto()))
+				.toList();
 	}
 
 	@Override
-	public Product getProduct(String id) {
+	public ProductDto getProduct(String id) {
 		Optional<Product> optProduct = productRepository.findById(Long.valueOf(id));
 		if(optProduct.isEmpty())
 			throw new ResourceNotFoundException("Product", "id", id);
-		return optProduct.get();
+		return ProductMapper.mapToProductDto(optProduct.get(), new ProductDto());
 	}
 
 	@Override
 	public boolean update(ProductDto productDto) {
 		boolean isUpdated = false;//TODO: Check resrved and new changes
-		Product product = productRepository.findByName(productDto.getName()).orElseThrow(
+		Product product = productRepository.findById(productDto.getProductId()).orElseThrow(
 				() -> new ResourceNotFoundException("Product", "name", productDto.getName()));
 		product = ProductMapper.mapToProduct(productDto, product);
 		product.setCreatedAt(LocalDateTime.now());

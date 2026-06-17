@@ -27,41 +27,47 @@ public class CategoryServiceImpl implements CategoryService {
 			throw new EntityAlreadyExistsException("Category with name: "+categoryDto.getName()+" already exists.");
 		Category category = CategoryMapper.mapToCategory(categoryDto, new Category());
 		category.setCreatedAt(LocalDateTime.now());
+		category.setUpdatedAt(LocalDateTime.now());
 		categoryRepository.save(category);
 	}
 
 	@Override
-	public List<Category> getCategories() {
-		return categoryRepository.findAll();
+	public List<CategoryDto> getCategories() {
+		return categoryRepository.findAll().stream()
+				.map(category -> CategoryMapper.mapToCategoryDto(category, new CategoryDto()))
+                .toList();
 	}
 
 	@Override
-	public Category getCategory(String id) {
+	public CategoryDto getCategory(String id) {
 		Optional<Category> optCategory = categoryRepository.findById(Long.valueOf(id));
 		if(optCategory.isEmpty())
 			throw new ResourceNotFoundException("Category", "id", id);
-		return optCategory.get();
+		return CategoryMapper.mapToCategoryDto(optCategory.get(), new CategoryDto());
 	}
 
 	@Override
 	public boolean update(CategoryDto categoryDto) {
 		boolean isUpdated = false;
-		Category category = categoryRepository.findByName(categoryDto.getName()).orElseThrow(
+		Category category = categoryRepository.findById(categoryDto.getCategoryId()).orElseThrow(
 				() -> new ResourceNotFoundException("Category", "name", categoryDto.getName()));
-		category.setName(categoryDto.getUpdatedName());
+		category.setName(categoryDto.getName());
+		category.setActive(categoryDto.isActive());
+		category.setUpdatedAt(LocalDateTime.now());
 		categoryRepository.save(category);
 		isUpdated = true;
 		return isUpdated;
 	}
 
 	@Override
-	public boolean delete(String id) {
-		boolean isdeleted = false;
+	public boolean deactivate(String id) {
+		boolean isDeactivate = false;
 		Category category = categoryRepository.findById(Long.valueOf(id)).orElseThrow(
 				() -> new ResourceNotFoundException("Category", "Id", id));
-		categoryRepository.delete(category);
-		isdeleted = true;
-		return isdeleted;
+		category.setActive(false);
+		categoryRepository.save(category);
+		isDeactivate = true;
+		return isDeactivate;
 	}
 
 }

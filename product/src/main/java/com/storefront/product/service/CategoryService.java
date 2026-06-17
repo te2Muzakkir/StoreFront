@@ -5,19 +5,18 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.storefront.product.dto.CategoryDto;
-import com.storefront.product.entity.Category;
 
 @Service
 public interface CategoryService {
 	
 	public void create(CategoryDto categoryDto);
 	
-	public List<Category> getCategories();
+	public List<CategoryDto> getCategories();
 	
-	public Category getCategory(String id);
+	public CategoryDto getCategory(String id);
 	
 	public boolean update(CategoryDto categoryDto);
 	
-	public boolean delete(String id);
+	public boolean deactivate(String id);
 
 }

@@ -5,28 +5,11 @@ spring:
     timeout-per-shutdown-phase: 30s
   config:
     import: 'configserver:http://localhost:9030/'
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
     
 server:
   port: 9035
   shutdown: graceful
   
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-  server:
-    enable-self-preservation: true
-    eviction-interval-timer-in-ms: 60000
-
 management:
   endpoints:
     web:

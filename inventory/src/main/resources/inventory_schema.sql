@@ -8,7 +8,7 @@ CREATE DATABASE sf_inventory
 CREATE TABLE inventory (
     product_id   BIGINT NOT NULL,
     seller_id    BIGINT NOT NULL,
-    total_quantity     INT    NOT NULL DEFAULT 0,
+    quantity     INT    NOT NULL DEFAULT 0,
     updated_at   TIMESTAMP NOT NULL DEFAULT now(),
 	reserved_quantity INT NOT NULL,
 	version BIGINT NOT NULL,
@@ -52,5 +52,27 @@ CREATE TABLE outbox_event (
 );
 
 CREATE INDEX idx_outbox_status ON outbox_event(status);
-
 CREATE INDEX idx_outbox_created_at ON outbox_event(created_at);
+
+CREATE SEQUENCE IF NOT EXISTS inventory_dlq_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE inventory_dlq (
+    id               BIGINT          NOT NULL DEFAULT nextval('inventory_dlq_id_seq'),
+    event_id         VARCHAR(36)     NOT NULL,
+    order_id         BIGINT          NOT NULL,
+    action           VARCHAR(255)    NOT NULL,
+    payload          TEXT            NOT NULL,
+    exception_message TEXT,
+    failed_at        TIMESTAMP       NOT NULL,
+
+    CONSTRAINT pk_inventory_dlq PRIMARY KEY (id)
+);
+
+CREATE INDEX idx_inventory_dlq_order    ON inventory_dlq (order_id);
+CREATE INDEX idx_inventory_dlq_event    ON inventory_dlq (event_id);
+CREATE INDEX idx_inventory_dlq_failed_at ON inventory_dlq (failed_at);

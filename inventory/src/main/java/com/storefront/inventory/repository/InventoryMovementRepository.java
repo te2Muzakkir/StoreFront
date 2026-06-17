@@ -12,6 +12,6 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 	
 	List<InventoryMovement> findByProductIdAndSellerIdOrderByCreatedAtDesc(Long productId, Long sellerId);
 	
-	List<InventoryMovement> findByReference(String reference);
+	List<InventoryMovement> findByReferenceAndMovementType(String reference, String movementType);
 
 }

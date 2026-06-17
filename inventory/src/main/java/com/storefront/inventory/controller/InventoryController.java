@@ -36,7 +36,7 @@ public class InventoryController {
 				.body(inventoryService.getAvaiableProductQuantity(productId, sellerId));
 	}
 	
-	@PostMapping
+	@PostMapping("/add")
 	public ResponseEntity<ResponseDto> addInventory(@Valid @RequestBody InventoryMovementDto inventoryMovementDto) {
 		inventoryService.addInventory(inventoryMovementDto);
 		return ResponseEntity.status(HttpStatus.CREATED)

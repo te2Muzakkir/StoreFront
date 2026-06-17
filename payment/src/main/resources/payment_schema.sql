@@ -6,12 +6,26 @@ CREATE DATABASE sf_payment
     IS_TEMPLATE = False;
     
     
+CREATE SEQUENCE IF NOT EXISTS payments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE payments (
-    id BIGSERIAL PRIMARY KEY,
-    order_id BIGINT NOT NULL UNIQUE,
-    amount NUMERIC(12,2) NOT NULL,
-    status VARCHAR(50) NOT NULL, -- PENDING, SUCCESS, FAILED
-    paid_at TIMESTAMP
+    id                              BIGINT          NOT NULL DEFAULT nextval('payments_id_seq'),
+    order_id                        BIGINT,
+    amount                          NUMERIC(19, 2),
+    status                          VARCHAR(255),
+    created_at                      TIMESTAMP,
+    updated_at                      TIMESTAMP,
+    version                         BIGINT,
+    transaction_id                  VARCHAR(255),
+    gateway_transaction_id          VARCHAR(255),
+    gateway_refund_transaction_id   VARCHAR(255),
+
+    CONSTRAINT pk_payments PRIMARY KEY (id)
 );
 
 CREATE TABLE processed_event (

@@ -17,7 +17,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "sf_user")
+@Table(name = "users")
 @Setter @Getter @NoArgsConstructor @AllArgsConstructor @ToString
 public class User extends BaseEntity {
 
@@ -31,5 +31,6 @@ public class User extends BaseEntity {
 	private String role; // CUSTOMER / ADMIN
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Address> address = new ArrayList<>();
+	private boolean isActive;
 
 }

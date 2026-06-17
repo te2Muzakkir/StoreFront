@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,18 +25,12 @@ import com.storefront.user.service.UserService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 @Validated
 public class UserController {
 	
-	
 	@Autowired
 	private UserService userService;
-	
-	@PostMapping
-	public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
-		return null;//TODO: + and - usecase
-	}
 
 	@GetMapping
 	public ResponseEntity<UserDto> getUser(@RequestParam String email) {
@@ -58,16 +53,16 @@ public class UserController {
         }
 	}
 	
-	@GetMapping("/{userId}/addresses")
-	public ResponseEntity<List<AddressDto>> getAdresses(@PathVariable("userId") String userId) {
+	@GetMapping("/{userId}/address")
+	public ResponseEntity<List<AddressDto>> getAddress(@PathVariable("userId") String userId) {
 		return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.getAdresses(userId));
+                .body(userService.getAddress(userId));
 	}
 	
-	@PostMapping("/{userId}/addAddress")
-	public ResponseEntity<ResponseDto> addAdresses(@PathVariable("userId") String userId, @Valid @RequestParam AddressDto addressDto) {
-		boolean isUpdated = userService.addAdresses(userId, addressDto);
+	@PostMapping("/{userId}/address")
+	public ResponseEntity<ResponseDto> addAddress(@PathVariable("userId") String userId, @Valid @RequestBody AddressDto addressDto) {
+		boolean isUpdated = userService.addAddress(userId, addressDto);
 		 if(isUpdated) {
 	            return ResponseEntity
 	                    .status(HttpStatus.OK)
@@ -77,6 +72,34 @@ public class UserController {
 	                    .status(HttpStatus.EXPECTATION_FAILED)
 	                    .body(new ResponseDto(UserConstants.STATUS_417, UserConstants.MESSAGE_417_UPDATE));
 	        }
+	}
+	
+	@PutMapping("/address")
+	public ResponseEntity<ResponseDto> updateAddress(@Valid @RequestBody AddressDto addressDto) {
+		boolean isUpdated = userService.updateAddress(addressDto);
+        if(isUpdated) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ResponseDto(UserConstants.STATUS_200, UserConstants.MESSAGE_200));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new ResponseDto(UserConstants.STATUS_417, UserConstants.MESSAGE_417_UPDATE));
+        }
+	}
+	
+	@DeleteMapping("/address/{addressId}")
+	public ResponseEntity<ResponseDto> deleteAddress(@PathVariable("addressId") String addressId) {
+		boolean isDeleted = userService.deleteAddress(addressId);
+        if(isDeleted) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ResponseDto(UserConstants.STATUS_200, UserConstants.MESSAGE_200));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new ResponseDto(UserConstants.STATUS_417, UserConstants.MESSAGE_417_DELETE));
+        }
 	}
 	
 }

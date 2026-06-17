@@ -18,8 +18,12 @@ public interface UserService {
 	
 	public boolean updateUser(UserDto userDto);
 	
-	public List<AddressDto> getAdresses(String userId);
+	public List<AddressDto> getAddress(String userId);
 	
-	public boolean addAdresses(String userId, AddressDto addressDto);
+	public boolean addAddress(String userId, AddressDto addressDto);
+	
+	public boolean updateAddress(AddressDto addressDto);
+	
+	public boolean deleteAddress(String addressId);
 
 }

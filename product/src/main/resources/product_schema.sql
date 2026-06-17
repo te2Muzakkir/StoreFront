@@ -9,7 +9,9 @@ CREATE DATABASE sf_product
 CREATE TABLE category (
     id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(150) NOT NULL UNIQUE,
-    created_at  TIMESTAMP NOT NULL DEFAULT now()
+    created_at  TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMP NOT NULL DEFAULT now(),
+    active       BOOLEAN DEFAULT true
 );
 
 CREATE TABLE products (
@@ -21,9 +23,11 @@ CREATE TABLE products (
     price        NUMERIC(12,2) NOT NULL,
     active       BOOLEAN DEFAULT true,
     created_at   TIMESTAMP NOT NULL DEFAULT now(),
-
+    updated_at   TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT fk_product_category
         FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
-alter table products add column quantity BIGINT NOT NULL DEFAULT 0;
+CREATE INDEX idx_products_name ON products (name);
+
+CREATE INDEX idx_products_name_fts ON products USING GIN (to_tsvector('english', name));

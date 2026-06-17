@@ -26,5 +26,7 @@ public final class InventoryConstants {
     public static final String OUTBOX_STATUS_FAILED = "FAILED";
     public static final String OUTBOX_STATUS_PROCESSING = "PROCESSING";
     public static final int MAX_PUBLISH_RETRIES = 10;
+    public static final String CORRELATION_ID_HEADER = "X-Correlation-ID";
+    public static final String CORRELATION_ID_ATTRIBUTE = "correlationId";
 
 }

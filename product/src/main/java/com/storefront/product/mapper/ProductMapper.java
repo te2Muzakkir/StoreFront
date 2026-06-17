@@ -12,6 +12,9 @@ public class ProductMapper {
 		productDto.setName(product.getName());
 		productDto.setPrice(product.getPrice());
 		productDto.setSellerId(product.getSellerId());
+		productDto.setProductId(product.getId());
+		productDto.setCreatedAt(product.getCreatedAt());
+		productDto.setUpdatedAt(product.getUpdatedAt());
 		return productDto;
 	}
 

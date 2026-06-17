@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.storefront.order.dto.Product;
 
-
 @FeignClient("product")
 public interface ProductFeignClient {
 	

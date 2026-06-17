@@ -25,7 +25,6 @@ public class OutboxPublisher {
     private final OutboxService outboxService;
     
     @Scheduled(fixedDelay = 5000)
-    @Transactional
     public void publishPendingEvents() {
         List<OutboxEvent> outboxEventList = outboxService.claimEvents();
         for (OutboxEvent outboxEvent : outboxEventList) {

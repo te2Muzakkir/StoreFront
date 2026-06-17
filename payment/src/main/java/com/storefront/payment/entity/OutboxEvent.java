@@ -76,7 +76,7 @@ public class OutboxEvent {
     }
     
     public void markProcessing() {
-        if (this.status != PaymentConstants.OUTBOX_STATUS_PENDING) 
+        if (!PaymentConstants.OUTBOX_STATUS_PENDING.equals(this.status)) 
             throw new IllegalStateException("Only PENDING events can be processed");
         this.status = PaymentConstants.OUTBOX_STATUS_PROCESSING;
         this.processingStartedAt = LocalDateTime.now();

@@ -11,10 +11,10 @@ import com.storefront.inventory.config.InventoryConstants;
 import com.storefront.inventory.dto.InventoryCommand;
 
 import jakarta.persistence.OptimisticLockException;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class InventoryProcessorService {
 	
 	private InventoryProcessor inventoryProcessor;

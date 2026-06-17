@@ -11,5 +11,6 @@ public class UserDto {
 	private String email;
 	private String password;
 	private List<AddressDto> address = new ArrayList<>();
-	//TODO: active field, locked
+	private boolean isActive;
+	
 }

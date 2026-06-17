@@ -20,10 +20,17 @@ public class Address extends BaseEntity {
 	@GeneratedValue(generator="address_seq")
 	@SequenceGenerator(name="address_seq",sequenceName="address_id_seq", allocationSize=1)
 	private Long id;
-	private String street;
+	private String address;
+	private String landmark;
 	private String city;
+	private String state;
 	private String country;
+	private String pincode;
+	private String phoneNumber;
+	private String receiverName;
+	private boolean isDefault;
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
+	
 }
