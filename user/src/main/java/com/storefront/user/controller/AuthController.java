@@ -7,14 +7,17 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.storefront.user.config.UserConstants;
+import com.storefront.user.dto.AuthenticationRequest;
+import com.storefront.user.dto.AuthenticationResponse;
+import com.storefront.user.dto.RefreshTokenRequest;
 import com.storefront.user.dto.ResponseDto;
 import com.storefront.user.dto.UserDto;
 import com.storefront.user.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -33,10 +36,26 @@ public class AuthController {
                 .body(new ResponseDto(UserConstants.STATUS_201, UserConstants.MESSAGE_201));
 	}
 	
-	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestParam("email") String email, @RequestParam("password") String password) {
-		return ResponseEntity
-                .status(HttpStatus.OK).body(userService.verifyLogin(email, password));
+	@PostMapping("/authenticate")
+	public ResponseEntity<AuthenticationResponse> authenticate(
+			@Valid @RequestBody AuthenticationRequest request, HttpServletRequest servletRequest) {
+		return ResponseEntity.status(HttpStatus.OK).body(userService.authenticate(request, servletRequest));
+	}
+	
+	@PostMapping("/refresh")
+	public ResponseEntity<AuthenticationResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest
+			, HttpServletRequest servletRequest) {
+		return ResponseEntity.status(HttpStatus.OK).body(userService.refreshToken(refreshTokenRequest, servletRequest));
+	}
+	
+	@PostMapping("/logout")
+	public ResponseEntity<String> logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+		return ResponseEntity.status(HttpStatus.OK).body(userService.logout(refreshTokenRequest));
+	}
+	
+	@PostMapping("/logout-all")
+	public ResponseEntity<String> logoutAll() {
+		return ResponseEntity.status(HttpStatus.OK).body(userService.logoutAll());
 	}
 
 }

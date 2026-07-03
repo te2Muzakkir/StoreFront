@@ -81,4 +81,18 @@ public class CategoryController {
 	        }
 	}
 	
+	@PatchMapping("/activate")
+	public ResponseEntity<ResponseDto> activate(@RequestParam("id") String id) {
+		boolean isActivated = categoryService.activate(id);
+		 if(isActivated) {
+	            return ResponseEntity
+	                    .status(HttpStatus.OK)
+	                    .body(new ResponseDto(ProductConstants.STATUS_200, ProductConstants.MESSAGE_200));
+	        } else {
+	            return ResponseEntity
+	                    .status(HttpStatus.EXPECTATION_FAILED)
+	                    .body(new ResponseDto(ProductConstants.STATUS_417, ProductConstants.MESSAGE_417_UPDATE));
+	        }
+	}
+	
 }

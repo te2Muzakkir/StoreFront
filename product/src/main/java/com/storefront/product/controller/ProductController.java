@@ -48,7 +48,21 @@ public class ProductController {
 	public ResponseEntity<ProductDto> getProduct(@PathVariable String id) {
 		return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.getProduct(id));
+                .body(productService.getProductById(id));
+	}
+	
+	@GetMapping("/getProductByNameOrDescription/{text}")
+	public ResponseEntity<List<ProductDto>> getProductByNameOrDescription(@PathVariable String text) {
+		return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(productService.getProductByNameOrDescription(text));
+	}
+	
+	@GetMapping("/findByCategory")
+	public ResponseEntity<List<ProductDto>> findByCategory(@PathVariable Long id) {
+		return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(productService.findByCategory(id));
 	}
 	
 	@PutMapping
@@ -76,6 +90,20 @@ public class ProductController {
 	            return ResponseEntity
 	                    .status(HttpStatus.EXPECTATION_FAILED)
 	                    .body(new ResponseDto(ProductConstants.STATUS_417, ProductConstants.MESSAGE_417_DELETE));
+	        }
+	}
+	
+	@PostMapping("/{id}/activate")
+	public ResponseEntity<ResponseDto> activate(@PathVariable("id") String id) {
+		boolean isActivated = productService.activate(id);
+		 if(isActivated) {
+	            return ResponseEntity
+	                    .status(HttpStatus.OK)
+	                    .body(new ResponseDto(ProductConstants.STATUS_200, ProductConstants.MESSAGE_200));
+	        } else {
+	            return ResponseEntity
+	                    .status(HttpStatus.EXPECTATION_FAILED)
+	                    .body(new ResponseDto(ProductConstants.STATUS_417, ProductConstants.MESSAGE_417_UPDATE));
 	        }
 	}
 

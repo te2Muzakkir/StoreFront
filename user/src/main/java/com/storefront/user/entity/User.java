@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -25,12 +26,17 @@ public class User extends BaseEntity {
 	@GeneratedValue(generator="user_seq")
 	@SequenceGenerator(name="user_seq",sequenceName="sf_user_id_seq", allocationSize=1)
 	private Long id;
+	@Column(nullable = false)
 	private String name;
+	@Column(nullable = false, unique = true)
 	private String email;
+	@Column(nullable = false)
 	private String password; // hashed
+	@Column(nullable = false)
 	private String role; // CUSTOMER / ADMIN
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Address> address = new ArrayList<>();
-	private boolean isActive;
+	@Column(nullable = true)
+	private boolean active;
 
 }

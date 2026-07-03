@@ -13,10 +13,16 @@ public interface ProductService {
 
 	public List<ProductDto> getProducts();
 
-	public ProductDto getProduct(String id);
+	public ProductDto getProductById(String id);
+	
+	public List<ProductDto> getProductByNameOrDescription(String text);
 
 	public boolean update(ProductDto productDto);
 
 	public boolean deactivate(String id);
+	
+	public List<ProductDto> findByCategory(Long categoryId);
+	
+	public boolean activate(String id);
 
 }

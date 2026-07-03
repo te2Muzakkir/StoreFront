@@ -9,7 +9,7 @@ spring:
         git:
           uri: "https://github.com/te2Muzakkir/storefront-config.git"
           username: te2Muzakkir
-          password: 
+          password: ${STORE_FRONT_CONFIG_PASSWORD}
           default-label: main
           timeout: 5
           clone-on-start: true

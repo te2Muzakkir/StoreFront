@@ -18,5 +18,7 @@ public interface CategoryService {
 	public boolean update(CategoryDto categoryDto);
 	
 	public boolean deactivate(String id);
+	
+	public boolean activate(String id);
 
 }

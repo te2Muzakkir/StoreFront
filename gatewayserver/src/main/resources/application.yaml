@@ -1,6 +1,8 @@
 spring:
   application:
     name: gatewayserver
+  config:
+    import: 'configserver:http://localhost:9030/'
   cloud:
     gateway:
       server:
@@ -44,8 +46,6 @@ spring:
     max-in-memory-size: 10MB
   lifecycle:
     timeout-per-shutdown-phase: 30s
-  config:
-    import: 'configserver:http://localhost:9030/'
        
 server:
   port: 9040
@@ -68,6 +68,8 @@ management:
     liveness-state:
       enabled: true
     circuitbreakers:
+      enabled: true
+    redis:
       enabled: true
   endpoint:
     health:

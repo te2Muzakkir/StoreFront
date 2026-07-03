@@ -70,4 +70,15 @@ public class CategoryServiceImpl implements CategoryService {
 		return isDeactivate;
 	}
 
+	@Override
+	public boolean activate(String id) {
+		boolean isActivated = false;
+		Category category = categoryRepository.findById(Long.valueOf(id)).orElseThrow(
+				() -> new ResourceNotFoundException("Category", "Id", id));
+		category.setActive(true);
+		categoryRepository.save(category);
+		isActivated = true;
+		return isActivated;
+	}
+
 }
