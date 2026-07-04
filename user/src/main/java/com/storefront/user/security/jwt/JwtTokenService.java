@@ -1,6 +1,7 @@
 package com.storefront.user.security.jwt;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -33,9 +34,10 @@ public class JwtTokenService {
                 .expiresAt(expiresAt)
                 .id(UUID.randomUUID().toString())
                 .claim("uid", principal.getId())
-                .claim("role", principal.getRole())
+                .claim("roles", List.of(principal.getRole()))
+                .claim("type", "ACCESS")
                 .build();
-        JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).build();
+        JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).type("JWT").build();
         String tokenValue = jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
         return JwtTokenResult.builder()
                 .accessToken(tokenValue)

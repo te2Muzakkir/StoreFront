@@ -15,24 +15,21 @@ import com.storefront.payment.dto.PaymentCommand;
 import com.storefront.payment.dto.PaymentResult;
 import com.storefront.payment.entity.Payment;
 import com.storefront.payment.entity.ProcessedEvent;
+import com.storefront.payment.metrics.PaymentMetricsService;
 import com.storefront.payment.repository.PaymentRepository;
 import com.storefront.payment.repository.ProcessedEventRepository;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class PaymentProcessor {
 	
 	private final PaymentRepository paymentRepository;
     private final OutboxService outboxService;
     private final ProcessedEventRepository processedEventRepository;
+    private final PaymentMetricsService paymentMetricsService;
 	
-    public PaymentProcessor(PaymentRepository paymentRepository, 
-    		OutboxService outboxService, ProcessedEventRepository processedEventRepository) {
-		super();
-		this.paymentRepository = paymentRepository;
-		this.outboxService = outboxService;
-		this.processedEventRepository = processedEventRepository;
-	}
-    
     @Transactional
     public void process(PaymentCommand command) {
     	try {
@@ -76,6 +73,7 @@ public class PaymentProcessor {
             payment.setGatewayTransactionId("");
             paymentRepository.save(payment);
             sendResult(command, true, null);
+            paymentMetricsService.incrementSuccess();
             return;
         }
         payment.setStatus(PaymentConstants.PAYMENT_STATUS_FAILED);
@@ -83,6 +81,7 @@ public class PaymentProcessor {
         payment.setGatewayTransactionId("");
         paymentRepository.save(payment);
         sendResult(command, false, PaymentConstants.PAYMENT_GATEWAY_DECLINED);
+        paymentMetricsService.incrementTimeout();
     }
     
     private void processRefund(PaymentCommand command) {
@@ -98,6 +97,7 @@ public class PaymentProcessor {
         boolean gatewaySuccess = invokeRefundGateway(payment.getGatewayTransactionId(), payment.getAmount());
         if (!gatewaySuccess) {
         	sendResult(command, false, PaymentConstants.PAYMENT_GATEWAY_DECLINED);
+        	paymentMetricsService.incrementFailed();
             return;
         }
         payment.setStatus(PaymentConstants.PAYMENT_STATUS_REFUNDED);
@@ -105,11 +105,14 @@ public class PaymentProcessor {
         payment.setGatewayRefundTransactionId("");
         paymentRepository.save(payment);
         sendResult(command, true, null);
+        paymentMetricsService.incrementRefunded();
     }
 
 	private void validateAmount(BigDecimal amount) {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) 
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+        	paymentMetricsService.incrementFailed();
             throw new IllegalStateException(PaymentConstants.INVALID_AMOUNT);
+        }
     }
     
     /*

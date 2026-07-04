@@ -18,6 +18,7 @@ import com.storefront.inventory.dto.InventoryResult;
 import com.storefront.inventory.entity.Inventory;
 import com.storefront.inventory.entity.InventoryMovement;
 import com.storefront.inventory.entity.ProcessedEvent;
+import com.storefront.inventory.metrics.InventoryMetricsService;
 import com.storefront.inventory.repository.InventoryMovementRepository;
 import com.storefront.inventory.repository.InventoryRepository;
 import com.storefront.inventory.repository.ProcessedEventRepository;
@@ -37,13 +38,16 @@ public class InventoryProcessor {
 	@Autowired
 	private InventoryRepository inventoryRepository;
 	
+	@Autowired
+	private InventoryMetricsService inventoryMetricsService;
+	
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void process(InventoryCommand command) {
 		try {
-		    processedEventRepository.saveAndFlush(
-		            new ProcessedEvent(command.eventId(), LocalDateTime.now()));
+			processedEventRepository.saveAndFlush(
+					new ProcessedEvent(command.eventId(), LocalDateTime.now()));
 		} catch (DataIntegrityViolationException e) {
-		    return;
+			return;
 		}
 		if (!inventoryMovementRepository.findByReferenceAndMovementType(
 				InventoryConstants.INVENTORY_MOVEMENT_REFERENCE_PREFIX+command.orderId(), command.action().toString()).isEmpty()) 
@@ -56,26 +60,36 @@ public class InventoryProcessor {
 					.orElseThrow(() -> new IllegalStateException(InventoryConstants.INVENTORY_NOT_FOUND));
 
 			switch (command.action()) {
-				case RESERVE -> 
-					reserve(command, inventoryList, inventoryMovementList, inventoryItem, inventory);
-				case CONFIRM -> 
-					confirm(command, inventoryList, inventoryMovementList, inventoryItem, inventory);
-				case RELEASE -> 
-					release(command, inventoryList, inventoryMovementList, inventoryItem, inventory);
+			case RESERVE -> 
+			reserve(command, inventoryList, inventoryMovementList, inventoryItem, inventory);
+			case CONFIRM -> 
+			confirm(command, inventoryList, inventoryMovementList, inventoryItem, inventory);
+			case RELEASE -> 
+			release(command, inventoryList, inventoryMovementList, inventoryItem, inventory);
 			}
 		}
 		inventoryRepository.saveAllAndFlush(inventoryList);
 		inventoryMovementRepository.saveAll(inventoryMovementList);
 		outboxService.saveEvent("INVENTORY", command.orderId().toString(),
-		        InventoryConstants.INVENTORY_RESULT_BINDING_KEY,
-		        new InventoryResult(UUID.randomUUID().toString(), command.eventId(), command.orderId(),
+				InventoryConstants.INVENTORY_RESULT_BINDING_KEY,
+				new InventoryResult(UUID.randomUUID().toString(), command.eventId(), command.orderId(),
 						command.action(), true, null));
+		switch (command.action()) {
+		case RESERVE -> 
+		inventoryMetricsService.incrementReserved();
+		case CONFIRM -> 
+		inventoryMetricsService.incrementConfirmed();
+		case RELEASE -> 
+		inventoryMetricsService.incrementReleased();
+		}
 	}
 	
 	private void reserve(InventoryCommand command, List<Inventory> inventoryList,
 			List<InventoryMovement> inventoryMovementList, InventoryItem inventoryItem, Inventory inventory) {
-		if ((inventory.getQuantity() - inventory.getReservedQuantity()) < inventoryItem.quantity()) 
+		if ((inventory.getQuantity() - inventory.getReservedQuantity()) < inventoryItem.quantity()) {
+			inventoryMetricsService.incrementInsufficient();
 			throw new IllegalStateException(InventoryConstants.INSUFFICIENT_STOCK);
+		}
 		inventory.setReservedQuantity(inventory.getReservedQuantity() + inventoryItem.quantity());
 		inventoryList.add(inventory);
 		inventoryMovementList.add(createInventoryMovement(command.orderId(), inventoryItem, command.action().toString()));
@@ -83,10 +97,14 @@ public class InventoryProcessor {
 	
 	private void confirm(InventoryCommand command, List<Inventory> inventoryList,
 			List<InventoryMovement> inventoryMovementList, InventoryItem inventoryItem, Inventory inventory) {
-		if (inventory.getQuantity() < inventoryItem.quantity()) 
+		if (inventory.getQuantity() < inventoryItem.quantity()) {
+			inventoryMetricsService.incrementFailed();
 			throw new IllegalStateException(InventoryConstants.INVALID_CONFIRM);
-		if (inventory.getReservedQuantity() < inventoryItem.quantity()) 
+		}
+		if (inventory.getReservedQuantity() < inventoryItem.quantity()) {
+			inventoryMetricsService.incrementInsufficient();
 			throw new IllegalStateException(InventoryConstants.NOT_RESERVED);
+		}
 		inventory.setQuantity(inventory.getQuantity() - inventoryItem.quantity());
 		inventory.setReservedQuantity(inventory.getReservedQuantity() - inventoryItem.quantity());
 		inventoryList.add(inventory);
@@ -95,8 +113,10 @@ public class InventoryProcessor {
 
 	private void release(InventoryCommand command, List<Inventory> inventoryList,
 			List<InventoryMovement> inventoryMovementList, InventoryItem inventoryItem, Inventory inventory) {
-		if (inventory.getReservedQuantity() < inventoryItem.quantity()) 
+		if (inventory.getReservedQuantity() < inventoryItem.quantity()) {
+			inventoryMetricsService.incrementFailed();
 			throw new IllegalStateException(InventoryConstants.INVALID_RELEASE);
+		}
 		inventory.setReservedQuantity(inventory.getReservedQuantity() - inventoryItem.quantity());
 		inventoryList.add(inventory);
 		inventoryMovementList.add(createInventoryMovement(command.orderId(), inventoryItem, command.action().toString()));

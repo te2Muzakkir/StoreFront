@@ -22,6 +22,7 @@ import com.storefront.order.entity.OrderSaga;
 import com.storefront.order.entity.OrderSagaItem;
 import com.storefront.order.entity.Orders;
 import com.storefront.order.entity.ProcessedEvent;
+import com.storefront.order.metrics.OrderMetricsService;
 import com.storefront.order.repository.OrderRepository;
 import com.storefront.order.repository.OrderSagaItemRepository;
 import com.storefront.order.repository.OrderSagaRepository;
@@ -42,6 +43,8 @@ public class OrderSagaOrchestrator {
     private final OrderSagaItemRepository orderSagaItemRepository;
 	
     private final OrderRepository orderRepository;
+    
+	private OrderMetricsService orderMetricsService;
 	
 	@Bean
     public Consumer<InventoryResult> inventoryResult() {
@@ -84,6 +87,7 @@ public class OrderSagaOrchestrator {
 			orderSagaRepository.save(orderSaga);
 			order.setStatus(OrderStatus.INVENTORY_RESERVATION_FAILED.getValue());
 			orderRepository.save(order);
+			orderMetricsService.incrementOrdersFailed();
 		}
 	}
 	
@@ -93,9 +97,11 @@ public class OrderSagaOrchestrator {
 		if (result.success()) {
 			orderSaga.completed();
 			order.setStatus(OrderStatus.CONFIRMED.getValue());
+			orderMetricsService.incrementOrdersCompleted();
 		} else {
 			orderSaga.failed();
 			order.setStatus(OrderStatus.INVENTORY_CONFIRM_FAILED.getValue());
+			orderMetricsService.incrementOrdersFailed();
 		}
 		orderSagaRepository.save(orderSaga);
 		orderRepository.save(order);
@@ -107,9 +113,11 @@ public class OrderSagaOrchestrator {
 		if (result.success()) {
 			orderSaga.failed();
 			order.setStatus(OrderStatus.FAILED.getValue());
+			orderMetricsService.incrementOrdersFailed();
 		} else {
 			orderSaga.failed();
 			order.setStatus(OrderStatus.INVENTORY_RESERVATION_FAILED.getValue());
+			orderMetricsService.incrementOrdersFailed();
 		}
 		orderSagaRepository.save(orderSaga);
 		orderRepository.save(order);

@@ -18,13 +18,7 @@ spring:
 server:
   port: 8080
   shutdown: graceful
-    
-info:
-  app:
-   name: User
-   description: "Single vendor ecommerce app User Application"
-   version: "1.0.0"
-   
+
 management:
   endpoints:
     web:
@@ -35,15 +29,39 @@ management:
       enabled: true
     liveness-state:
       enabled: true
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+    ping:
+      enabled: true
+    rabbit:
+      enabled: true
   endpoint:
     health:
       probes:
         enabled: true
     shutdown:
       enabled: true
+    prometheus:
+      access: read-only
   info:
     env:
       enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+    
+info:
+  app:
+   name: User
+   description: "Single vendor ecommerce app User Application"
+   version: "1.0.0"
       
 logging:
   level:

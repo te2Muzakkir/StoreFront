@@ -25,11 +25,15 @@ import com.storefront.order.entity.OrderSagaItem;
 import com.storefront.order.entity.Orders;
 import com.storefront.order.exception.ResourceNotFoundException;
 import com.storefront.order.mapper.OrdersMapper;
+import com.storefront.order.metrics.OrderMetricsService;
 import com.storefront.order.repository.OrderItemsRepository;
 import com.storefront.order.repository.OrderRepository;
 import com.storefront.order.repository.OrderSagaItemRepository;
 import com.storefront.order.repository.OrderSagaRepository;
 import com.storefront.order.service.client.ProductFeignClient;
+
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -51,10 +55,27 @@ public class OrderServiceImpl implements OrderService {
 	
 	@Autowired
 	private ProductFeignClient productFeignClient;
+	
+	@Autowired
+	private MeterRegistry meterRegistry;
+
+	@Autowired
+	private OrderMetricsService orderMetricsService;
+	
+	private boolean hasPriceChanged(List<OrderItemsDto> orderItemsDtoList) {
+		for(OrderItemsDto orderItemsDto : orderItemsDtoList) {
+			ResponseEntity<Product> responseEntity = productFeignClient.getProduct(String.valueOf(orderItemsDto.getProductId()));
+			Product product = responseEntity.getBody();
+			if(!product.getPrice().equals(orderItemsDto.getPrice()))
+				return true;
+		}
+		return false;
+	}
 
 	@Override
 	@Transactional
 	public String create(OrdersDto orderDto) {
+		Timer.Sample sample = Timer.start(meterRegistry);
 		Orders order = new Orders();
 		order.setCreatedAt(LocalDateTime.now());
 		order.setCustomerId(orderDto.getCustomerId());
@@ -65,8 +86,14 @@ public class OrderServiceImpl implements OrderService {
 		BigDecimal orderValue = orderDto.getOrderItemsDtoList().stream()
 		        .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
 		        .reduce(BigDecimal.ZERO, BigDecimal::add);
-		if(!orderValue.equals(orderDto.getTotalAmount()))
+		if(!orderValue.equals(orderDto.getTotalAmount())) {
+			orderMetricsService.incrementOrdersFailed();
 			return OrderConstants.ORDER_PRICE_UPDATED_ERR_MSG;
+		}
+		if(hasPriceChanged(orderDto.getOrderItemsDtoList())) {
+			orderMetricsService.incrementOrdersFailed();
+			return OrderConstants.ORDER_PRICE_UPDATED_ERR_MSG;
+		}
 		order.setTotalAmount(orderValue);
 		orderRepository.save(order);
 		for(OrderItemsDto orderItemsDto : orderDto.getOrderItemsDtoList()) {
@@ -75,10 +102,6 @@ public class OrderServiceImpl implements OrderService {
 			orderItems.setProductId(orderItemsDto.getProductId());
 			orderItems.setSellerId(orderItemsDto.getSellerId());
 			orderItems.setQuantity(orderItemsDto.getQuantity());
-			ResponseEntity<Product> responseEntity = productFeignClient.getProduct(String.valueOf(orderItemsDto.getProductId()));
-			Product product = responseEntity.getBody();
-			if(!product.getPrice().equals(orderItemsDto.getPrice()))
-				return OrderConstants.ORDER_PRICE_UPDATED_ERR_MSG;
 			orderItems.setPrice(orderItemsDto.getPrice());
 			orderItemsList.add(orderItems);
 
@@ -94,6 +117,8 @@ public class OrderServiceImpl implements OrderService {
 		outboxService.saveEvent("ORDER", order.getId().toString(), "inventoryCommand-out-0", 
 				new InventoryCommand(UUID.randomUUID().toString(), order.getId(),
 						inventoryItemList, InventoryAction.RESERVE));
+		orderMetricsService.incrementOrdersCreated();
+		sample.stop(orderMetricsService.getOrderProcessingTimer());
 		return OrderConstants.ORDER_CREATED_SUCCESSFULLY;
 	}
 

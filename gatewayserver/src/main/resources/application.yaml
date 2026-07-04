@@ -71,6 +71,10 @@ management:
       enabled: true
     redis:
       enabled: true
+    diskspace:
+      enabled: true
+    ping:
+      enabled: true
   endpoint:
     health:
       probes:
@@ -81,7 +85,7 @@ management:
     metrics:
       enabled: true
     prometheus:
-      enabled: true
+      access: read-only
   info:
     env:
       enabled: true

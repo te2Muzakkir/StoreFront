@@ -1,48 +1,64 @@
 package com.storefront.gatewayserver.security.config;
 
-import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN;
 import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_ACCESS_TOKEN;
 import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_CLAIM_ROLES;
 import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_CLAIM_TYPE;
 import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_CLAIM_UID;
+import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_ROLE_VALUE_MSG;
+import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN;
+import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN_ROLES_EMPTY_MSG;
+import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN_ROLES_MSG;
 import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN_SUBJECT_MSG;
+import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN_TYPE_MSG;
 import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN_UID_MSG;
 import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN_USER_ID_MSG;
-import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN_ROLES_MSG;
-import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN_ROLES_EMPTY_MSG;
-import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_ROLE_VALUE_MSG;
-import static com.storefront.gatewayserver.config.GatewayConstants.JWT_VALIDATOR_INVALID_TOKEN_TYPE_MSG;
 
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+import com.storefront.gatewayserver.metrics.GatewayMetricsService;
+
 @Component
 public class GatewayJwtValidator implements OAuth2TokenValidator<Jwt> {
+	
+	@Autowired
+	private GatewayMetricsService  gatewayMetricsService;
 
     @Override
     public OAuth2TokenValidatorResult validate(Jwt jwt) {
         OAuth2TokenValidatorResult result;
+        
         result = validateSubject(jwt);
-        if (result.hasErrors())
+        if (result.hasErrors()) {
+        	gatewayMetricsService.jwtFailure();
             return result;
+        }
 
         result = validateUserId(jwt);
-        if (result.hasErrors())
+        if (result.hasErrors()) {
+        	gatewayMetricsService.jwtFailure();
             return result;
+        }
 
         result = validateRoles(jwt);
-        if (result.hasErrors()) 
+        if (result.hasErrors()) {
+        	gatewayMetricsService.jwtFailure();
             return result;
+        }
 
         result = validateTokenType(jwt);
-        if (result.hasErrors()) 
+        if (result.hasErrors()) {
+        	gatewayMetricsService.jwtFailure();
             return result;
+        }
 
+        gatewayMetricsService.jwtSuccess();
         return OAuth2TokenValidatorResult.success();
     }
 

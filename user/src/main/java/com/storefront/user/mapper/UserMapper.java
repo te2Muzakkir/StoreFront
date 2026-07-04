@@ -59,6 +59,7 @@ public class UserMapper {
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
         user.setPassword(userDto.getPassword());
+        user.setActive(true);
         List<Address> addressList = userDto.getAddress()
                 .stream()
                 .map(dto -> mapToAddress(dto, user))

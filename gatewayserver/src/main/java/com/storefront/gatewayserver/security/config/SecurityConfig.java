@@ -1,6 +1,9 @@
 package com.storefront.gatewayserver.security.config;
 
 import static com.storefront.gatewayserver.config.GatewayConstants.USER_ROLE_CUSTOMER;
+
+import java.util.Collection;
+
 import static com.storefront.gatewayserver.config.GatewayConstants.USER_ROLE_ADMIN;
 
 import org.springframework.context.annotation.Bean;
@@ -8,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
@@ -35,7 +39,15 @@ public class SecurityConfig {
     	authoritiesConverter.setAuthoritiesClaimName("roles");
     	authoritiesConverter.setAuthorityPrefix("ROLE_");
     	ReactiveJwtAuthenticationConverter authenticationConverter = new ReactiveJwtAuthenticationConverter();
-    	authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> Flux.fromIterable(authoritiesConverter.convert(jwt)));
+    	authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+
+    	    Collection<GrantedAuthority> authorities = authoritiesConverter.convert(jwt);
+
+    	    System.out.println("JWT Claims : " + jwt.getClaims());
+    	    System.out.println("Authorities : " + authorities);
+
+    	    return Flux.fromIterable(authorities);
+    	});
     	return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
     			.formLogin(ServerHttpSecurity.FormLoginSpec::disable)
     			.httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
@@ -43,6 +55,7 @@ public class SecurityConfig {
     			.authorizeExchange(exchange -> exchange
     					.pathMatchers(GatewayConstants.WHITELISTED_URL).permitAll()
     					.pathMatchers(HttpMethod.OPTIONS).permitAll()
+    					.pathMatchers("/actuator/**").hasRole(USER_ROLE_ADMIN)
     				    .pathMatchers("/storefront/user/api/users/**").hasAnyRole(USER_ROLE_CUSTOMER, USER_ROLE_ADMIN)
     				    .pathMatchers("/storefront/product/api/category/**").hasRole(USER_ROLE_ADMIN)
     				    .pathMatchers(HttpMethod.GET, "/storefront/product/api/product/**").hasAnyRole(USER_ROLE_CUSTOMER, USER_ROLE_ADMIN)

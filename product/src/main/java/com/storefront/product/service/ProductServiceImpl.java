@@ -1,8 +1,10 @@
 package com.storefront.product.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,6 +20,7 @@ import com.storefront.product.entity.Product;
 import com.storefront.product.exception.EntityAlreadyExistsException;
 import com.storefront.product.exception.ResourceNotFoundException;
 import com.storefront.product.mapper.ProductMapper;
+import com.storefront.product.metrics.ProductMetricsService;
 import com.storefront.product.repository.ProductRepository;
 import com.storefront.product.service.client.InventoryFeignClient;
 
@@ -29,6 +32,9 @@ public class ProductServiceImpl implements ProductService {
 	
 	@Autowired
 	private InventoryFeignClient inventoryFeignClient;
+	
+	@Autowired
+	private ProductMetricsService productMetricsService;
 
 	@Caching(evict = {
 		    @CacheEvict(cacheNames = ProductConstants.PRODUCT_BY_CATEGORY, allEntries = true),
@@ -53,6 +59,7 @@ public class ProductServiceImpl implements ProductService {
 		inventoryMovementDto.setReference("Product - "+product.getId());
 		inventoryMovementDto.setSellerId(productDto.getSellerId());
 		inventoryFeignClient.addInventory(inventoryMovementDto);
+		productMetricsService.incrementCreated();
 	}
 
 	@Cacheable(
@@ -65,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
 	public List<ProductDto> getProducts() {
 		return productRepository.findByActiveTrue().stream()
 				.map(product -> ProductMapper.mapToProductDto(product, new ProductDto()))
-				.toList();
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	@Cacheable(
@@ -91,7 +98,8 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<ProductDto> getProductByNameOrDescription(String text) {
 		return productRepository.findByNameOrDescription(text, text).stream()
-				.map(product -> ProductMapper.mapToProductDto(product, new ProductDto())).toList();
+				.map(product -> ProductMapper.mapToProductDto(product, new ProductDto()))
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	@Caching(evict = {
@@ -123,6 +131,7 @@ public class ProductServiceImpl implements ProductService {
 			inventoryFeignClient.addInventory(inventoryMovementDto);
 		}
 		isUpdated = true;
+		productMetricsService.incrementUpdated();
 		return isUpdated;
 	}
 
@@ -141,6 +150,7 @@ public class ProductServiceImpl implements ProductService {
 		product.setActive(false);
 		productRepository.save(product);
 		isdeactivated = true;
+		productMetricsService.incrementDeactivated();
 		return isdeactivated;
 	}
 
@@ -155,7 +165,7 @@ public class ProductServiceImpl implements ProductService {
 		List<Product> products = productRepository.findByCategoryId(categoryId);
 		return products.stream()
 				.map(product -> ProductMapper.mapToProductDto(product, new ProductDto()))
-				.toList();
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	@Caching(evict = {
@@ -173,6 +183,7 @@ public class ProductServiceImpl implements ProductService {
 		product.setActive(true);
 		productRepository.save(product);
 		isActivated = true;
+		productMetricsService.incrementActivated();
 		return isActivated;
 	}
 

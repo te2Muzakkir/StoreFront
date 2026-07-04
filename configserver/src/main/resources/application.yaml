@@ -39,7 +39,25 @@ management:
       enabled: true
     liveness-state:
       enabled: true
+    diskspace:
+      enabled: true
+    ping:
+      enabled: true
   endpoint:
     health:
       probes:
         enabled: true
+    prometheus:
+      access: read-only
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Config Server
+    description: "Single vendor ecommerce app Config Server"
+    version: "1.0.0"
