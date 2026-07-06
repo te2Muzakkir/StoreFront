@@ -1,5 +1,3 @@
--- CREATE DATABASE sf_inventory WITH OWNER = postgres ENCODING = 'UTF8' CONNECTION LIMIT = -1 IS_TEMPLATE = False;
-
 CREATE TABLE inventory (
     product_id   BIGINT NOT NULL,
     seller_id    BIGINT NOT NULL,

@@ -1,0 +1,12 @@
+.git/
+.settings/
+.project
+.classpath
+.idea/
+.vscode/
+README.md
+Dockerfile
+docker-compose.yml
+*.iml
+logs/
+*.log

@@ -11,9 +11,12 @@ spring:
   profiles:
     active: default
   config:
-    import: 'configserver:http://localhost:9030/'
+    import: "configserver:${CONFIG_SERVER_URL:http://localhost:9030/}"
   lifecycle:
     timeout-per-shutdown-phase: 30s
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 
 server:
   port: 8080
@@ -65,6 +68,12 @@ info:
       
 logging:
   level:
-    com:
-      storefront:
-        user: DEBUG
+    com.storefront: INFO
+  pattern:
+    console: >
+      %d{yyyy-MM-dd HH:mm:ss.SSS}
+      [%thread]
+      %-5level
+      [%X{correlationId}]
+      %logger{36}
+      - %msg%n

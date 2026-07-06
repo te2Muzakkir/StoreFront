@@ -9,21 +9,21 @@ spring:
         git:
           uri: "https://github.com/te2Muzakkir/storefront-config.git"
           username: te2Muzakkir
-          password: ${STORE_FRONT_CONFIG_PASSWORD}
+          password: 
           default-label: main
           timeout: 5
           clone-on-start: true
           force-pull: true
   rabbitmq:
-    host: localhost
-    port: 5672
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
     username: guest
     password: guest
   lifecycle:
     timeout-per-shutdown-phase: 30s
       
 encrypt:
-  key: "cc3389dc98130d9962aa217c1a65280a894c68c820e3c7e73ac40c870641b0f1"
+  key: cc3389dc98130d9962aa217c1a65280a894c68c820e3c7e73ac40c870641b0f1
           
 server:
   port: 9030

@@ -1,6 +1,3 @@
---CREATE DATABASE sf_product WITH OWNER = postgres ENCODING = 'UTF8' CONNECTION LIMIT = -1 IS_TEMPLATE = False;
-
-    
 CREATE TABLE category (
     id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(150) NOT NULL UNIQUE,

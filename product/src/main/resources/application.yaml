@@ -7,13 +7,16 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-      show-sql: true
+      show-sql: false
   profiles:
     active: default
   config:
-    import: "configserver:http://localhost:9030/"
+    import: "configserver:${CONFIG_SERVER_URL:http://localhost:9030/}"
   lifecycle:
     timeout-per-shutdown-phase: 30s
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
     
 server:
   port: 8090
@@ -69,6 +72,12 @@ management:
       
 logging:
   level:
-    com:
-      storefront:
-        product: DEBUG
+    com.storefront: INFO
+  pattern:
+    console: >
+      %d{yyyy-MM-dd HH:mm:ss.SSS}
+      [%thread]
+      %-5level
+      [%X{correlationId}]
+      %logger{36}
+      - %msg%n

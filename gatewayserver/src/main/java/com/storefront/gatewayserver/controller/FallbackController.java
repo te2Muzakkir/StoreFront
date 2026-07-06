@@ -5,7 +5,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -15,7 +16,16 @@ public class FallbackController {
 	private static final String MESSAGE_KEY = "message";
 	private static final String SERVICE_KEY = "service";
 
-	@GetMapping("/fallback/user") 
+	@RequestMapping(
+		    value = "/fallback/user",
+		    method = {
+		        RequestMethod.GET,
+		        RequestMethod.POST,
+		        RequestMethod.PUT,
+		        RequestMethod.DELETE,
+		        RequestMethod.PATCH
+		    }
+		)
 	public ResponseEntity<Map<String, Object>> userFallback() { 
 		return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
 				.body(Map.of(SERVICE_KEY, "USER", 
@@ -23,7 +33,16 @@ public class FallbackController {
 						TIMESTAMP_KEY, LocalDateTime.now())); 
 	} 
 
-	@GetMapping("/fallback/product") 
+	@RequestMapping(
+		    value = "/fallback/product",
+		    method = {
+		        RequestMethod.GET,
+		        RequestMethod.POST,
+		        RequestMethod.PUT,
+		        RequestMethod.DELETE,
+		        RequestMethod.PATCH
+		    }
+		)
 	public ResponseEntity<Map<String, Object>> productFallback() { 
 		return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
 				.body(Map.of(SERVICE_KEY, "PRODUCT", 
@@ -31,7 +50,16 @@ public class FallbackController {
 						TIMESTAMP_KEY, LocalDateTime.now())); 
 	} 
 
-	@GetMapping("/fallback/inventory") 
+	@RequestMapping(
+		    value = "/fallback/inventory",
+		    method = {
+		        RequestMethod.GET,
+		        RequestMethod.POST,
+		        RequestMethod.PUT,
+		        RequestMethod.DELETE,
+		        RequestMethod.PATCH
+		    }
+		)
 	public ResponseEntity<Map<String, Object>> inventoryFallback() { 
 		return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
 				.body(Map.of(SERVICE_KEY, "INVENTORY", 
@@ -39,7 +67,16 @@ public class FallbackController {
 						TIMESTAMP_KEY, LocalDateTime.now())); 
 	} 
 
-	@GetMapping("/fallback/order") 
+	@RequestMapping(
+		    value = "/fallback/order",
+		    method = {
+		        RequestMethod.GET,
+		        RequestMethod.POST,
+		        RequestMethod.PUT,
+		        RequestMethod.DELETE,
+		        RequestMethod.PATCH
+		    }
+		)
 	public ResponseEntity<Map<String, Object>> orderFallback() { 
 		return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
 				.body(Map.of(SERVICE_KEY, "ORDER", 
@@ -47,7 +84,16 @@ public class FallbackController {
 						TIMESTAMP_KEY, LocalDateTime.now())); 
 	} 
 
-	@GetMapping("/fallback/payment") 
+	@RequestMapping(
+		    value = "/fallback/payment",
+		    method = {
+		        RequestMethod.GET,
+		        RequestMethod.POST,
+		        RequestMethod.PUT,
+		        RequestMethod.DELETE,
+		        RequestMethod.PATCH
+		    }
+		)
 	public ResponseEntity<Map<String, Object>> paymentFallback() { 
 		return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
 				.body(Map.of(SERVICE_KEY, "PAYMENT", 

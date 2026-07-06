@@ -2,7 +2,7 @@ spring:
   application:
     name: gatewayserver
   config:
-    import: 'configserver:http://localhost:9030/'
+    import: "configserver:${CONFIG_SERVER_URL:http://localhost:9030/}"
   cloud:
     gateway:
       server:
@@ -104,14 +104,13 @@ management:
       
 logging:
   level:
-    root: INFO
-    com.storefront.gatewayserver: INFO
-    org.springframework.boot.autoconfigure: DEBUG
+    com.storefront: INFO
   pattern:
     console: >
       %d{yyyy-MM-dd HH:mm:ss.SSS}
       [%thread]
       %-5level
+      [%X{correlationId}]
       %logger{36}
       - %msg%n
       

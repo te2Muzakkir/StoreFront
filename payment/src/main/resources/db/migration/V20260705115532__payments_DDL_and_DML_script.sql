@@ -1,5 +1,3 @@
--- CREATE DATABASE sf_payment WITH OWNER = postgres ENCODING = 'UTF8' CONNECTION LIMIT = -1 IS_TEMPLATE = False;
-    
 CREATE SEQUENCE IF NOT EXISTS payments_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -71,10 +69,10 @@ CREATE TABLE payment_dlq (
 );
 
 CREATE INDEX idx_payment_dlq_order
-    ON payment_failure(order_id);
+    ON payment_dlq(order_id);
 
 CREATE INDEX idx_payment_dlq_event
-    ON payment_failure(event_id);
+    ON payment_dlq(event_id);
 
 CREATE INDEX idx_payment_dlq_failed_at
-    ON payment_failure(failed_at);
+    ON payment_dlq(failed_at);

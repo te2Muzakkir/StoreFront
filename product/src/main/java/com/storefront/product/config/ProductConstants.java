@@ -20,5 +20,6 @@ public final class ProductConstants {
     public static final String PRODUCT_BY_CATEGORY = "product:byCategory";
     public static final String PRODUCT_SEARCH = "product:searchByNameOrDesc";
     public static final String PRODUCT_LOAD = "product:load";
+    
 
 }

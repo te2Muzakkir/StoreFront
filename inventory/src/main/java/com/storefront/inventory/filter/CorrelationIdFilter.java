@@ -1,7 +1,7 @@
-package com.storefront.order.filter;
+package com.storefront.inventory.filter;
 
-import static com.storefront.order.config.OrderConstants.CORRELATION_ID_ATTRIBUTE;
-import static com.storefront.order.config.OrderConstants.CORRELATION_ID_HEADER;
+import static com.storefront.inventory.config.InventoryConstants.CORRELATION_ID_ATTRIBUTE;
+import static com.storefront.inventory.config.InventoryConstants.CORRELATION_ID_HEADER;
 
 import java.io.IOException;
 
