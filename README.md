@@ -1303,7 +1303,7 @@ mvn clean install -DskipTests
 
 ## 📚 Documentation
 
-Detailed documentation for the project is available below.
+Detailed documentation for running the project locally with IDE.
 
 | Document | Description |
 |----------|-------------|
