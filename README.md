@@ -1301,7 +1301,18 @@ mvn clean install -DskipTests
 
 ---
 
-# Docker Compose
+## 📚 Documentation
+
+Detailed documentation for the project is available below.
+
+| Document | Description |
+|----------|-------------|
+| [DEVELOPMENT](DEVELOPMENT_README.md) | For local developement with IDE refer this markdown file|
+
+
+---
+
+# Docker Compose [For overall testing, demonstrating and deployment]
 
 StoreFront uses Docker Compose to provision the complete local development environment.
 
@@ -1388,7 +1399,7 @@ docker logs -f storefront-order-service
 
 | Component | URL |
 |-----------|-----|
-| Eureka Dashboard | http://localhost:8761 |
+| Eureka Dashboard | http://localhost:9035 |
 | RabbitMQ Management | http://localhost:15672 |
 | Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3000 |
@@ -1657,7 +1668,7 @@ Each microservice exposes Spring Boot Actuator health endpoints.
 Example:
 
 ```
-http://localhost:8082/actuator/health
+http://localhost:8080/actuator/health
 ```
 
 Expected response:
@@ -1723,7 +1734,7 @@ Every microservice exposes production-ready operational endpoints.
 Example:
 
 ```
-http://localhost:8082/actuator/health
+http://localhost:8080/actuator/health
 ```
 
 Expected Response
@@ -1843,7 +1854,7 @@ Typical checks include:
 |-----------|-----|
 | Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3000 |
-| Eureka | http://localhost:8761 |
+| Eureka | http://localhost:9035 |
 | RabbitMQ | http://localhost:15672 |
 | Gateway Health | http://localhost:9040/actuator/health |
 
@@ -1861,11 +1872,11 @@ Each microservice provides interactive API documentation that can be used for de
 
 | Service | Swagger URL |
 |----------|-------------|
-| User Service | http://localhost:8081/swagger-ui.html |
-| Product Service | http://localhost:8082/swagger-ui.html |
-| Inventory Service | http://localhost:8083/swagger-ui.html |
-| Order Service | http://localhost:8084/swagger-ui.html |
-| Payment Service | http://localhost:8085/swagger-ui.html |
+| User Service | http://localhost:8080/swagger-ui.html |
+| Product Service | http://localhost:8090/swagger-ui.html |
+| Inventory Service | http://localhost:9000/swagger-ui.html |
+| Order Service | http://localhost:9010/swagger-ui.html |
+| Payment Service | http://localhost:9020/swagger-ui.html |
 
 ---
 
@@ -1876,7 +1887,7 @@ Each service also exposes its OpenAPI definition.
 Example:
 
 ```
-http://localhost:8082/v3/api-docs
+http://localhost:9040/v3/api-docs
 ```
 
 ---
@@ -2143,39 +2154,6 @@ This project demonstrates practical experience with modern backend engineering c
 - Observability
 - Metrics
 - Production Readiness
-
----
-
-# Contributing
-
-Contributions, suggestions, and improvements are welcome.
-
-If you would like to contribute:
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Commit your changes.
-4. Push the branch.
-5. Open a Pull Request.
-
----
-
-# License
-
-This project is licensed under the **MIT License**.
-
-You are free to:
-
-- Use
-- Modify
-- Distribute
-- Fork
-- Learn from
-- Extend
-
-the project in accordance with the terms of the license.
-
-See the `LICENSE` file for additional details.
 
 ---
 
