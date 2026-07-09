@@ -70,6 +70,50 @@ Rather than demonstrating isolated technologies, StoreFront illustrates how thes
 
 ---
 
+## High-Level Architecture
+
+``` mermaid
+flowchart TB
+    Client --> Gateway["API Gateway"]
+    Gateway --> Eureka["Eureka Server"]
+    Gateway --> User
+    Gateway --> Product
+    Gateway --> Inventory
+    Gateway --> Order
+    Gateway --> Payment
+
+    Config["Config Server"] --> Gateway
+    Config --> User
+    Config --> Product
+    Config --> Inventory
+    Config --> Order
+    Config --> Payment
+
+    Order --> MQ["RabbitMQ"]
+    Inventory --> MQ
+    Payment --> MQ
+
+    User --> UDB[(User DB)]
+    Product --> PDB[(Product DB)]
+    Inventory --> IDB[(Inventory DB)]
+    Order --> ODB[(Order DB)]
+    Payment --> PayDB[(Payment DB)]
+
+    Product --> Redis[(Redis)]
+    Gateway --> Redis
+
+    User --> Prom
+    Product --> Prom
+    Inventory --> Prom
+    Order --> Prom
+    Payment --> Prom
+    Gateway --> Prom
+
+    Prom["Prometheus"] --> Grafana["Grafana"]
+```
+
+---
+
 # Business Problem
 
 As e-commerce platforms grow, a monolithic architecture becomes increasingly difficult to maintain.
