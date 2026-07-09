@@ -138,7 +138,7 @@ Run the following applications in order.
 7. Order Service
 8. Gateway Server
 
-## start services from Docker/Docker Compose in DEV mode
+## Start services from Docker/Docker Compose in DEV mode
 
 Run the following docker commands from individual service folder
 
@@ -213,11 +213,11 @@ Open the Swagger UI for each microservice.
 
 | Service | URL |
 |----------|-----|
-| User Service | http://localhost:8081/swagger-ui.html |
-| Product Service | http://localhost:8082/swagger-ui.html |
-| Inventory Service | http://localhost:8083/swagger-ui.html |
-| Order Service | http://localhost:8084/swagger-ui.html |
-| Payment Service | http://localhost:8085/swagger-ui.html |
+| User Service | http://localhost:8080/swagger-ui.html |
+| Product Service | http://localhost:8090/swagger-ui.html |
+| Inventory Service | http://localhost:9000/swagger-ui.html |
+| Order Service | http://localhost:9010/swagger-ui.html |
+| Payment Service | http://localhost:9020/swagger-ui.html |
 
 Verify that:
 
