@@ -90,6 +90,13 @@ management:
         http.server.requests: true
       percentiles:
         http.server.requests: 0.5,0.95,0.99
+      slo:
+        http.server.requests:
+          - 100ms
+          - 250ms
+          - 500ms
+          - 1s
+          - 2s
       
 logging:
   level:

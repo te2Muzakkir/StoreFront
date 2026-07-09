@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.19_7-jre
+FROM eclipse-temurin:17-jre
 LABEL org.opencontainers.image.title="StoreFront Product Service" \
       org.opencontainers.image.description="StoreFront Product Microservice" \
       org.opencontainers.image.version="1.0.0" \
