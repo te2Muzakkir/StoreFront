@@ -138,6 +138,20 @@ Run the following applications in order.
 7. Order Service
 8. Gateway Server
 
+## start services from Docker/Docker Compose in DEV mode
+
+Run the following docker commands from individual service folder
+
+```
+	docker build -f Dockerfile.dev .
+```
+
+To run all services with docker compose
+
+```
+	docker compose -f docker-compose.dev.yml up --build
+```
+
 ## Verify Eureka
 
 Once all Spring Boot applications have started, open the Eureka dashboard.

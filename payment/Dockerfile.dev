@@ -1,0 +1,35 @@
+FROM maven:3.9.11-eclipse-temurin-17 AS builder
+
+WORKDIR /build
+
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+FROM eclipse-temurin:17.0.19_7-jre
+
+LABEL org.opencontainers.image.title="StoreFront Payment Service" \
+      org.opencontainers.image.description="StoreFront Payment Microservice" \
+      org.opencontainers.image.version="1.0.0" \
+      org.opencontainers.image.vendor="StoreFront" \
+      org.opencontainers.image.authors="Syed Muzakkir"
+
+ENV JAVA_TOOL_OPTIONS="-XX:+UseContainerSupport"
+
+RUN groupadd --system storefront && \
+    useradd --system --gid storefront --create-home --shell /usr/sbin/nologin storefront
+
+WORKDIR /app
+
+COPY --from=builder /build/target/*.jar app.jar
+
+RUN chown -R storefront:storefront /app
+
+USER storefront
+
+EXPOSE 9020
+
+ENTRYPOINT ["java","-jar","app.jar"]
